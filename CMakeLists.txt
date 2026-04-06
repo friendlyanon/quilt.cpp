@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.16)
-project(quilt VERSION 0.1 LANGUAGES CXX)
+project(quilt VERSION 0.69.1 LANGUAGES CXX)
 
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -30,7 +30,7 @@ target_include_directories(quilt PRIVATE src)
 target_precompile_headers(quilt PRIVATE src/quilt.hpp)
 
 target_compile_definitions(quilt PRIVATE
-    QUILT_VERSION="${PROJECT_VERSION}"
+    QUILT_VERSION="${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}"
 )
 
 target_compile_options(quilt PRIVATE
@@ -81,7 +81,7 @@ add_custom_command(
     COMMAND sh ${CMAKE_SOURCE_DIR}/cmake/make_amalgam.sh
             ${CMAKE_SOURCE_DIR}
             ${CMAKE_BINARY_DIR}/quilt.cpp
-            ${PROJECT_VERSION}
+            ${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}
             ${AMALGAM_SOURCES}
     DEPENDS ${AMALGAM_SOURCES} cmake/make_amalgam.sh
     COMMENT "Generating quilt.cpp amalgamation"
@@ -111,7 +111,7 @@ if(ENABLE_FUZZ)
     target_precompile_headers(fuzz_patch PRIVATE src/quilt.hpp)
     target_compile_definitions(fuzz_patch PRIVATE
         FUZZING_BUILD_MODE_UNSAFE_FOR_PRODUCTION
-        QUILT_VERSION="${PROJECT_VERSION}")
+        QUILT_VERSION="${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}")
     target_compile_options(fuzz_patch PRIVATE
         -fsanitize=fuzzer,address,undefined)
     target_link_options(fuzz_patch PRIVATE
@@ -122,7 +122,7 @@ if(ENABLE_FUZZ)
     target_precompile_headers(fuzz_shell_split PRIVATE src/quilt.hpp)
     target_compile_definitions(fuzz_shell_split PRIVATE
         FUZZING_BUILD_MODE_UNSAFE_FOR_PRODUCTION
-        QUILT_VERSION="${PROJECT_VERSION}")
+        QUILT_VERSION="${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}")
     target_compile_options(fuzz_shell_split PRIVATE
         -fsanitize=fuzzer,address,undefined)
     target_link_options(fuzz_shell_split PRIVATE
@@ -133,7 +133,7 @@ if(ENABLE_FUZZ)
     target_precompile_headers(fuzz_roundtrip PRIVATE src/quilt.hpp)
     target_compile_definitions(fuzz_roundtrip PRIVATE
         FUZZING_BUILD_MODE_UNSAFE_FOR_PRODUCTION
-        QUILT_VERSION="${PROJECT_VERSION}")
+        QUILT_VERSION="${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}")
     target_compile_options(fuzz_roundtrip PRIVATE
         -fsanitize=fuzzer,address,undefined)
     target_link_options(fuzz_roundtrip PRIVATE
@@ -144,7 +144,7 @@ if(ENABLE_FUZZ)
     target_precompile_headers(fuzz_roundtrip_fuzz PRIVATE src/quilt.hpp)
     target_compile_definitions(fuzz_roundtrip_fuzz PRIVATE
         FUZZING_BUILD_MODE_UNSAFE_FOR_PRODUCTION
-        QUILT_VERSION="${PROJECT_VERSION}")
+        QUILT_VERSION="${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}")
     target_compile_options(fuzz_roundtrip_fuzz PRIVATE
         -fsanitize=fuzzer,address,undefined)
     target_link_options(fuzz_roundtrip_fuzz PRIVATE
