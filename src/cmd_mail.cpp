@@ -121,7 +121,7 @@ static std::string make_message_id(int64_t t, int seq,
     }
 
     uint64_t h = fnv1a_64(content);
-    return std::format("<{}.{}.{:016x}@{}>", t, seq, h, domain);
+    return std::format("<{}.{}.{:016x}.{}@{}>", t, seq, h, current_time(), domain);
 }
 
 // Compute the width needed for zero-padded patch numbers
