@@ -1,0 +1,49 @@
+name: Release
+on:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install mingw-w64
+        run: sudo apt-get update && sudo apt-get install -y mingw-w64
+
+      - name: Extract version from tag
+        id: version
+        run: echo "version=${GITHUB_REF_NAME#v}" >> "$GITHUB_OUTPUT"
+
+      - name: Build amalgamation
+        run: |
+          cmake -B build -DCMAKE_BUILD_TYPE=Release
+          cmake --build build --target amalgam
+          cp build/quilt.cpp quilt.cpp
+
+      - name: Build Windows binary
+        run: |
+          cmake -B build-win32 -DCMAKE_BUILD_TYPE=Release \
+            -DCMAKE_TOOLCHAIN_FILE=cmake/mingw-w64.cmake
+          cmake --build build-win32
+          x86_64-w64-mingw32-strip build-win32/quilt.exe
+
+      - name: Create source tarball
+        run: >
+          git archive --format=tar.gz --prefix=quilt-${{ steps.version.outputs.version }}/
+          -o quilt-${{ steps.version.outputs.version }}.tar.gz HEAD
+
+      - name: Create release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: >
+          gh release create "$GITHUB_REF_NAME"
+          --title "${{ steps.version.outputs.version }}"
+          quilt.cpp
+          quilt-${{ steps.version.outputs.version }}.tar.gz
+          build-win32/quilt.exe
