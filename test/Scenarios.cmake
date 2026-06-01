@@ -20,6 +20,7 @@ set(QUILT_TEST_SCENARIOS
     pop_to_named_patch
     diff_shows_changes
     diff_after_refresh
+    diff_z_after_refresh_mixed_files
     snapshot_tracks_all_applied_files
     snapshot_replaces_previous
     snapshot_delete
@@ -879,6 +880,27 @@ function(qt_scenario_diff_after_refresh)
     qt_write_file("${QT_WORK_DIR}/f.txt" "newer\n")
     qt_quilt_ok(OUTPUT diff_out ERROR diff_err ARGS diff MESSAGE "diff failed")
     qt_assert_contains("${diff_out}" "+newer" "diff should show +newer")
+endfunction()
+
+function(qt_scenario_diff_z_after_refresh_mixed_files)
+    qt_begin_test("diff_z_after_refresh_mixed_files")
+    qt_write_file("${QT_WORK_DIR}/existing.txt" "old\n")
+    qt_write_file("${QT_WORK_DIR}/patches/combo.patch" [=[--- a/existing.txt
++++ b/existing.txt
+@@ -1 +1 @@
+-old
++new
+--- /dev/null
++++ b/newfile.txt
+@@ -0,0 +1 @@
++hello
+]=])
+    qt_write_file("${QT_WORK_DIR}/patches/series" "combo.patch\n")
+
+    qt_quilt_ok(ARGS push -a MESSAGE "push -a failed")
+    qt_quilt_ok(ARGS refresh MESSAGE "refresh failed")
+    qt_quilt_ok(OUTPUT diff_out ERROR diff_err ARGS diff -z MESSAGE "diff -z failed")
+    qt_assert_equal("${diff_out}" "" "diff -z should be empty immediately after refresh")
 endfunction()
 
 function(qt_scenario_snapshot_tracks_all_applied_files)
@@ -6561,6 +6583,8 @@ function(qt_run_named_scenario scenario)
         qt_scenario_diff_shows_changes()
     elseif(scenario STREQUAL "diff_after_refresh")
         qt_scenario_diff_after_refresh()
+    elseif(scenario STREQUAL "diff_z_after_refresh_mixed_files")
+        qt_scenario_diff_z_after_refresh_mixed_files()
     elseif(scenario STREQUAL "snapshot_tracks_all_applied_files")
         qt_scenario_snapshot_tracks_all_applied_files()
     elseif(scenario STREQUAL "snapshot_replaces_previous")
